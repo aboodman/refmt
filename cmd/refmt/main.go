@@ -11,6 +11,7 @@ import (
 	"github.com/polydawn/refmt/json"
 	"github.com/polydawn/refmt/pretty"
 	"github.com/polydawn/refmt/shared"
+	"github.com/polydawn/refmt/yaml"
 )
 
 func main() {
@@ -66,7 +67,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			Usage:    "read yaml, then pretty print it",
 			Action: func(c *cli.Context) error {
 				return shared.TokenPump{
-					newYamlTokenSource(stdin),
+					yaml.NewDecoder(stdin),
 					pretty.NewEncoder(stdout),
 				}.Run()
 			},
@@ -124,7 +125,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			Usage:    "read yaml, emit equivalent json",
 			Action: func(c *cli.Context) error {
 				return shared.TokenPump{
-					newYamlTokenSource(stdin),
+					yaml.NewDecoder(stdin),
 					json.NewEncoder(stdout),
 				}.Run()
 			},
@@ -135,7 +136,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			Usage:    "read yaml, emit equivalent cbor",
 			Action: func(c *cli.Context) error {
 				return shared.TokenPump{
-					newYamlTokenSource(stdin),
+					yaml.NewDecoder(stdin),
 					cbor.NewEncoder(stdout),
 				}.Run()
 			},
@@ -146,7 +147,7 @@ func Main(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 			Usage:    "read yaml, emit equivalent cbor in hex",
 			Action: func(c *cli.Context) error {
 				return shared.TokenPump{
-					newYamlTokenSource(stdin),
+					yaml.NewDecoder(stdin),
 					cbor.NewEncoder(hexWriter{stdout}),
 				}.Run()
 			},

@@ -1,4 +1,4 @@
-package main
+package yaml
 
 import (
 	"bytes"
@@ -10,8 +10,12 @@ import (
 	"github.com/polydawn/refmt/obj"
 	"github.com/polydawn/refmt/obj/atlas"
 	"github.com/polydawn/refmt/shared"
-	"github.com/polydawn/refmt/tok"
+	. "github.com/polydawn/refmt/tok"
 )
+
+type Decoder struct {
+	proxy shared.TokenSource
+}
 
 /*
 	Turn yaml into a TokenSource... by running it through a third-party
@@ -22,8 +26,8 @@ import (
 	object in the middle make a blocking point, the third-party library
 	itself does not operate streamingly on the bytes, either.)
 */
-func newYamlTokenSource(in io.Reader) shared.TokenSource {
-	byts, err := ioutil.ReadAll(in)
+func NewDecoder(r io.Reader) shared.TokenSource {
+	byts, err := ioutil.ReadAll(r)
 	if err != nil {
 		return errthunkTokenSource{fmt.Errorf("refmt: error reading: %s", err)}
 	}
@@ -37,14 +41,19 @@ func newYamlTokenSource(in io.Reader) shared.TokenSource {
 	if err := tokenSrc.Bind(barf); err != nil {
 		return errthunkTokenSource{fmt.Errorf("refmt: error deserializing yaml: %s", err)}
 	}
-	return tokenSrc
+	return &Decoder{tokenSrc}
+
+}
+
+func (d *Decoder) Step(tokenSlot *Token) (done bool, err error) {
+	return d.proxy.Step(tokenSlot)
 }
 
 type errthunkTokenSource struct {
 	err error
 }
 
-func (x errthunkTokenSource) Step(*tok.Token) (done bool, err error) {
+func (x errthunkTokenSource) Step(*Token) (done bool, err error) {
 	return true, x.err
 }
 
