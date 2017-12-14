@@ -58,7 +58,7 @@ func (x errthunkTokenSource) Step(*Token) (done bool, err error) {
 }
 
 /*
-	Yaml things anything can be a map key.
+	Yaml thinks anything can be a map key.
 	Most things think only strings can be a map key.
 	This func makes yaml outputs into what everyone else expects.
 */
